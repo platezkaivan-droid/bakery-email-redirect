@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Подтверждение Email - Bakery App</title>
+    <title>Вход в приложение - Bakery App</title>
     <style>
         * {
             margin: 0;
@@ -100,37 +100,79 @@
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
+
+        .debug {
+            margin-top: 20px;
+            padding: 10px;
+            background: #f5f5f5;
+            border-radius: 8px;
+            font-size: 11px;
+            color: #666;
+            word-break: break-all;
+            display: none;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="icon">🍰</div>
-        <h1>Подтверждение Email</h1>
-        <p>Открываем приложение Bakery...</p>
-        <button class="button" onclick="openApp()">Открыть приложение</button>
+        <h1>Почти готово!</h1>
+        <p id="status">Открываем приложение...</p>
+        <a id="deepLinkBtn" href="#" class="button">Открыть приложение вручную</a>
         <div class="loading">
             <div class="spinner"></div>
             Автоматическое перенаправление...
         </div>
+        <div id="debug" class="debug"></div>
     </div>
 
     <script>
-        function openApp() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const token = urlParams.get('token');
-            const type = urlParams.get('type');
+        // Схема приложения
+        const scheme = 'bakery-app';
+        const path = '//auth-callback';
+        
+        function getRedirectUrl() {
+            // Получаем параметры после # и после ?
+            const hash = window.location.hash.substring(1); // убираем #
+            const search = window.location.search.substring(1); // убираем ?
             
-            let deepLink = 'bakeryapp://';
+            // Собираем все параметры
+            let params = [];
+            if (search) params.push(search);
+            if (hash) params.push(hash);
             
-            if (token && type) {
-                deepLink += `?token=${encodeURIComponent(token)}&type=${encodeURIComponent(type)}`;
-            }
+            const queryString = params.join('&');
             
-            window.location.href = deepLink;
+            // Формируем Deep Link: bakery-app://auth-callback#param1=value1&param2=value2
+            return scheme + ':' + path + (queryString ? '#' + queryString : '');
         }
         
-        // Автоматически открываем приложение через 1 секунду
-        setTimeout(openApp, 1000);
+        const finalUrl = getRedirectUrl();
+        
+        // Для отладки
+        console.log('🔗 Redirect URL:', finalUrl);
+        console.log('📍 Current URL:', window.location.href);
+        console.log('🔍 Hash:', window.location.hash);
+        console.log('🔍 Search:', window.location.search);
+        
+        // Показываем debug info (раскомментируй для отладки)
+        // document.getElementById('debug').style.display = 'block';
+        // document.getElementById('debug').innerHTML = 'Deep Link:<br>' + finalUrl;
+        
+        // Устанавливаем ссылку на кнопку
+        document.getElementById('deepLinkBtn').href = finalUrl;
+        
+        // Автоматически пытаемся открыть приложение
+        setTimeout(() => {
+            console.log('🚀 Attempting to open app...');
+            window.location.href = finalUrl;
+            
+            // Если через 2 секунды всё ещё на странице - показываем сообщение
+            setTimeout(() => {
+                document.getElementById('status').textContent = 'Нажмите кнопку ниже, чтобы открыть приложение';
+                document.querySelector('.loading').style.display = 'none';
+            }, 2000);
+        }, 500);
     </script>
 </body>
 </html>
