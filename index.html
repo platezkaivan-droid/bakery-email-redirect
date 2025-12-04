@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Вход в Булочки Павлова...</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body { 
+      font-family: sans-serif; 
+      text-align: center; 
+      padding-top: 50px;
+      background: linear-gradient(135deg, #FF6B35 0%, #F7931E 100%);
+      color: white;
+      min-height: 100vh;
+      margin: 0;
+    }
+    .container {
+      background: rgba(255,255,255,0.1);
+      padding: 40px;
+      border-radius: 20px;
+      max-width: 400px;
+      margin: 0 auto;
+      backdrop-filter: blur(10px);
+    }
+    .btn { 
+      background: white; 
+      color: #FF6B35; 
+      padding: 15px 30px; 
+      text-decoration: none; 
+      border-radius: 25px; 
+      font-weight: bold; 
+      display: inline-block; 
+      margin-top: 20px;
+      transition: transform 0.2s;
+    }
+    .btn:hover {
+      transform: scale(1.05);
+    }
+    .loader {
+      border: 5px solid rgba(255,255,255,0.3);
+      border-top: 5px solid white;
+      border-radius: 50%;
+      width: 50px;
+      height: 50px;
+      animation: spin 1s linear infinite;
+      margin: 20px auto;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>🍞 Булочки Павлова</h2>
+    <div class="loader"></div>
+    <p>Открываем приложение...</p>
+    
+    <a id="deepLinkBtn" href="#" class="btn">Открыть приложение вручную</a>
+  </div>
+
+  <script>
+    // 1. Собираем параметры из URL
+    const hash = window.location.hash; // #access_token=...
+    const query = window.location.search; // ?token=...
+    
+    // 2. Формируем Deep Link
+    const appScheme = 'bakery-app://auth-callback';
+    const finalUrl = appScheme + query + hash;
+    
+    console.log('Deep Link:', finalUrl);
+    console.log('Query:', query);
+    console.log('Hash:', hash);
+    
+    // 3. Назначаем ссылку кнопке
+    document.getElementById('deepLinkBtn').href = finalUrl;
+    
+    // 4. Автоматически открываем через 100мс
+    setTimeout(function() {
+      console.log('Attempting to open:', finalUrl);
+      window.location.href = finalUrl;
+    }, 100);
+    
+    // 5. Показываем кнопку через 2 секунды (если не открылось)
+    setTimeout(function() {
+      document.querySelector('p').textContent = 'Если приложение не открылось, нажмите кнопку:';
+    }, 2000);
+  </script>
+</body>
+</html>
